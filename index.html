@@ -2,10 +2,13 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🌸 Vacances Perrot — Lyon 26-29 avril 2026</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#3b82f6">
+<title>🌸 Vacances Lyon — 26-29 avril 2026</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌸</text></svg>">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
   :root {
     --bg: #fafafa;
@@ -17,43 +20,120 @@
     --lun: #f59e0b;
     --mar: #22c55e;
     --mer: #7c3aed;
+    --shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  [data-theme="dark"] {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --border: #334155;
+    --shadow: 0 2px 8px rgba(0,0,0,0.3);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: var(--bg);
     color: var(--text);
     line-height: 1.5;
+    min-height: 100vh;
+    transition: background 0.2s, color 0.2s;
   }
-  .container { max-width: 900px; margin: 0 auto; padding: 20px 16px; }
+  .container { max-width: 900px; margin: 0 auto; padding: 0 16px 40px; }
   header {
     background: linear-gradient(135deg, #3b82f6 0%, #7c3aed 100%);
     color: white;
-    padding: 32px 20px 24px;
+    padding: 28px 20px 22px;
     text-align: center;
+    position: relative;
   }
-  header h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 6px; }
-  header p { font-size: 14px; opacity: 0.9; }
+  header h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 6px; }
+  header p { font-size: 13px; opacity: 0.9; }
+  .header-actions {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: flex;
+    gap: 6px;
+  }
+  .icon-btn {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    border-radius: 8px;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.15s;
+  }
+  .icon-btn:hover, .icon-btn:active { background: rgba(255,255,255,0.35); }
 
+  /* Countdown */
+  .countdown {
+    background: var(--card);
+    padding: 12px 16px;
+    border-radius: 12px;
+    margin: 16px 0;
+    text-align: center;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+  .countdown-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .countdown-value { font-size: 22px; font-weight: 800; color: var(--dim); margin-top: 4px; }
+
+  /* Infos */
   .infos {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 16px 20px;
-    margin-bottom: 20px;
+    padding: 14px 18px;
+    margin-bottom: 16px;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
-    font-size: 13px;
+    font-size: 12px;
+    box-shadow: var(--shadow);
   }
   .infos p { margin: 0; }
-  .infos strong { color: var(--dim); }
-  @media (max-width: 600px) { .infos { grid-template-columns: 1fr; } }
+  .infos strong { color: var(--dim); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+  @media (max-width: 500px) { .infos { grid-template-columns: 1fr; } }
 
+  /* Progress bar */
+  .progress-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .progress-bar-outer {
+    height: 8px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6, #7c3aed);
+    width: 0%;
+    transition: width 0.3s ease;
+    border-radius: 99px;
+  }
+
+  /* Tabs */
   .tabs {
     display: flex;
     gap: 6px;
-    margin-bottom: 16px;
     overflow-x: auto;
     padding-bottom: 4px;
     position: sticky;
@@ -62,29 +142,49 @@
     z-index: 100;
     padding-top: 10px;
     padding-bottom: 10px;
+    margin-bottom: 14px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
   }
+  .tabs::-webkit-scrollbar { display: none; }
   .tab {
     flex: 1;
-    min-width: 80px;
-    padding: 10px 12px;
+    min-width: 70px;
+    padding: 10px 10px;
     background: var(--card);
     border: 2px solid var(--border);
     border-radius: 10px;
     cursor: pointer;
     text-align: center;
-    font-size: 13px;
+    font-size: 12.5px;
     font-weight: 600;
     color: var(--muted);
     transition: all 0.2s;
     white-space: nowrap;
+    position: relative;
+    user-select: none;
   }
+  .tab.today::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 10px;
+    height: 10px;
+    background: #dc2626;
+    border-radius: 50%;
+    border: 2px solid var(--bg);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
   .tab.active { color: white; border-color: transparent; }
   .tab[data-day="dim"].active { background: var(--dim); }
   .tab[data-day="lun"].active { background: var(--lun); }
   .tab[data-day="mar"].active { background: var(--mar); }
   .tab[data-day="mer"].active { background: var(--mer); }
-  .tab[data-day="map"].active, .tab[data-day="recap"].active { background: var(--text); }
+  .tab[data-day="map"].active, .tab[data-day="recap"].active, .tab[data-day="checklist"].active, .tab[data-day="infos"].active { background: var(--text); }
 
+  /* Day panels */
   .day { display: none; }
   .day.active { display: block; animation: fadeIn 0.25s ease; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
@@ -100,13 +200,17 @@
     flex-wrap: wrap;
     gap: 8px;
   }
-  .day-header h2 { font-size: 18px; font-weight: 700; }
-  .day-header .meteo { font-size: 13px; opacity: 0.95; font-weight: 500; }
+  .day-header h2 { font-size: 17px; font-weight: 700; }
+  .day-header .meteo { font-size: 12px; opacity: 0.95; font-weight: 500; display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 20px; }
   #dim .day-header { background: var(--dim); }
   #lun .day-header { background: var(--lun); }
   #mar .day-header { background: var(--mar); }
   #mer .day-header { background: var(--mer); }
 
+  /* Mini map */
+  .day-map { height: 220px; width: 100%; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 14px; box-shadow: var(--shadow); }
+
+  /* Timeline */
   .timeline { position: relative; margin-left: 8px; padding-left: 20px; border-left: 3px solid var(--border); }
   .slot {
     background: var(--card);
@@ -115,6 +219,7 @@
     padding: 12px 14px;
     margin-bottom: 12px;
     position: relative;
+    box-shadow: var(--shadow);
   }
   .slot::before {
     content: '';
@@ -141,7 +246,7 @@
   }
   .slot-time {
     font-weight: 700;
-    font-size: 13px;
+    font-size: 12.5px;
     color: var(--muted);
     white-space: nowrap;
   }
@@ -155,6 +260,7 @@
     border-radius: 99px;
     white-space: nowrap;
   }
+  [data-theme="dark"] .marie-tag { background: #78350f; color: #fde68a; }
   .slot ul { list-style: none; padding: 0; margin: 6px 0 0; }
   .slot li {
     font-size: 12.5px;
@@ -169,9 +275,38 @@
     color: #cbd5e1;
   }
   .price { color: #dc2626; font-weight: 700; }
+  [data-theme="dark"] .price { color: #fca5a5; }
   .free { color: #16a34a; font-weight: 700; }
+  [data-theme="dark"] .free { color: #86efac; }
   .tip { color: #0369a1; font-style: italic; }
+  [data-theme="dark"] .tip { color: #7dd3fc; }
 
+  .slot-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 10px;
+    background: var(--border);
+    color: var(--text);
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 11.5px;
+    font-weight: 600;
+    transition: background 0.15s;
+    border: none;
+    cursor: pointer;
+  }
+  .action-btn:hover { background: var(--dim); color: white; }
+  .action-btn.book { background: #fef3c7; color: #92400e; }
+  .action-btn.book:hover { background: #f59e0b; color: white; }
+
+  /* Restos */
   .restos {
     margin-top: 10px;
     background: #fef2f2;
@@ -179,22 +314,26 @@
     border-radius: 6px;
     padding: 10px 12px;
   }
+  [data-theme="dark"] .restos { background: #450a0a; }
   .restos-title {
     font-weight: 700;
     font-size: 12px;
     color: #991b1b;
     margin-bottom: 6px;
   }
+  [data-theme="dark"] .restos-title { color: #fca5a5; }
   .resto {
     padding: 6px 0;
     border-top: 1px dotted #fecaca;
   }
+  [data-theme="dark"] .resto { border-top-color: #7f1d1d; }
   .resto:first-of-type { border-top: none; padding-top: 2px; }
-  .resto-head { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .resto-head { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; align-items: baseline; }
   .resto-name { font-weight: 700; font-size: 13px; }
   .resto-name a { color: var(--text); text-decoration: none; border-bottom: 1px dotted #cbd5e1; }
   .resto-name a:hover { color: var(--dim); }
   .resto-price { color: #dc2626; font-weight: 600; font-size: 12px; white-space: nowrap; }
+  [data-theme="dark"] .resto-price { color: #fca5a5; }
   .resto-desc { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
   .resto-tags { margin-top: 4px; }
   .tag {
@@ -205,9 +344,13 @@
     background: #e0e7ff;
     color: #4338ca;
     margin-right: 4px;
+    margin-bottom: 2px;
   }
+  [data-theme="dark"] .tag { background: #312e81; color: #c7d2fe; }
   .tag.bouchon { background: #fce7f3; color: #9f1239; }
+  [data-theme="dark"] .tag.bouchon { background: #500724; color: #fbcfe8; }
 
+  /* Route */
   .route {
     background: #f0fdf4;
     border: 1px solid #bbf7d0;
@@ -217,13 +360,16 @@
     margin: 12px 0;
     font-size: 12.5px;
   }
+  [data-theme="dark"] .route { background: #052e16; border-color: #166534; color: #86efac; }
 
+  /* Alternatives */
   .alternatives {
     margin-top: 12px;
     background: #eff6ff;
     border-radius: 10px;
     padding: 12px 14px;
   }
+  [data-theme="dark"] .alternatives { background: #172554; }
   .alternatives summary {
     cursor: pointer;
     font-weight: 700;
@@ -234,6 +380,7 @@
     align-items: center;
     gap: 6px;
   }
+  [data-theme="dark"] .alternatives summary { color: #93c5fd; }
   .alternatives summary::-webkit-details-marker { display: none; }
   .alternatives summary::before { content: '▸'; transition: transform 0.2s; display: inline-block; }
   .alternatives[open] summary::before { transform: rotate(90deg); }
@@ -244,10 +391,13 @@
     color: #1e3a8a;
     position: relative;
   }
+  [data-theme="dark"] .alternatives li { color: #bfdbfe; }
   .alternatives li::before { content: '•'; position: absolute; left: 0; color: #60a5fa; }
   .alternatives strong { color: #1e3a8a; }
+  [data-theme="dark"] .alternatives strong { color: #dbeafe; }
 
-  #map { height: 500px; width: 100%; border-radius: 12px; border: 1px solid var(--border); }
+  /* Main map */
+  #map { height: 500px; width: 100%; border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow); }
   .legend-box {
     background: var(--card);
     padding: 10px 14px;
@@ -255,6 +405,7 @@
     font-size: 12px;
     margin-top: 12px;
     border: 1px solid var(--border);
+    box-shadow: var(--shadow);
   }
   .legend-box .dot {
     display: inline-block;
@@ -264,7 +415,9 @@
     margin-right: 6px;
     vertical-align: middle;
   }
+  .legend-box div { margin: 4px 0; }
 
+  /* Budget table */
   .budget-table {
     width: 100%;
     border-collapse: collapse;
@@ -273,25 +426,133 @@
     overflow: hidden;
     font-size: 12.5px;
     margin-bottom: 20px;
+    box-shadow: var(--shadow);
   }
   .budget-table th {
     background: var(--text);
-    color: white;
+    color: var(--bg);
     padding: 10px;
     text-align: left;
   }
   .budget-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
   .budget-table tr:last-child td { border-bottom: none; }
   .budget-table tr.total td { font-weight: 700; background: #fef3c7; color: #92400e; }
+  [data-theme="dark"] .budget-table tr.total td { background: #78350f; color: #fde68a; }
   .budget-table td:last-child { text-align: right; font-weight: 600; color: #dc2626; }
+  [data-theme="dark"] .budget-table td:last-child { color: #fca5a5; }
 
+  .info-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-top: 12px;
+    box-shadow: var(--shadow);
+  }
+  .info-card h3 { font-size: 14px; margin-bottom: 8px; color: var(--text); }
+  .info-card ul { list-style: none; font-size: 12.5px; color: var(--muted); }
+  .info-card li { padding: 2px 0 2px 14px; position: relative; }
+  .info-card li::before { content: '•'; position: absolute; left: 0; color: var(--dim); }
+  .info-card.urgent { border-left: 4px solid #dc2626; }
+  .info-card.urgent h3 { color: #dc2626; }
+
+  /* Checklist */
+  .checklist-category {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .checklist-category h3 {
+    background: var(--border);
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--text);
+  }
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .check-item:hover { background: var(--border); }
+  .check-item input { width: 18px; height: 18px; cursor: pointer; accent-color: var(--dim); }
+  .check-item.done { opacity: 0.5; text-decoration: line-through; }
+  .check-item a { color: var(--dim); text-decoration: none; font-weight: 600; }
+  .check-item .meta { font-size: 11px; color: var(--muted); margin-left: auto; }
+
+  /* Footer */
   .footer {
     text-align: center;
     padding: 30px 20px 40px;
     color: var(--muted);
-    font-size: 12px;
+    font-size: 11.5px;
   }
   .footer a { color: var(--dim); text-decoration: none; }
+
+  /* Toast notifications */
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--text);
+    color: var(--bg);
+    padding: 10px 18px;
+    border-radius: 99px;
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+
+  /* Share modal */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 9998;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-backdrop.show { display: flex; }
+  .modal {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 20px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  }
+  .modal h3 { margin-bottom: 12px; font-size: 16px; }
+  .modal .share-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: var(--border);
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--text);
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 14px;
+    border: none;
+    width: 100%;
+    cursor: pointer;
+  }
+  .modal .share-btn:hover { background: var(--dim); color: white; }
 </style>
 </head>
 <body>
@@ -299,32 +560,56 @@
 <header>
   <h1>🌸 Lyon en famille</h1>
   <p>Dimanche 26 → Mercredi 29 avril 2026</p>
+  <div class="header-actions">
+    <button class="icon-btn" id="share-btn" title="Partager">📤</button>
+    <button class="icon-btn" id="theme-btn" title="Thème">🌙</button>
+  </div>
 </header>
 
 <div class="container">
 
+  <!-- Countdown -->
+  <div class="countdown" id="countdown"></div>
+
+  <!-- Infos -->
   <div class="infos">
-    <p>🚄 <strong>Aller</strong><br>Dim 26, 09:00 → 10:56 Part-Dieu</p>
-    <p>🚄 <strong>Retour</strong><br>Mer 29, 15:04 → 17:00 Paris</p>
-    <p>🏠 <strong>Airbnb Confluence</strong><br>54 Cours Charlemagne · Check-in 16h</p>
-    <p>👩 <strong>Marie</strong><br>Rue David Girin (Bellecour)</p>
+    <p><strong>🚄 Aller</strong><br>Dim 26, 09:00 → 10:56 Part-Dieu</p>
+    <p><strong>🚄 Retour</strong><br>Mer 29, 15:04 → 17:00 Paris</p>
+    <p><strong>🏠 Airbnb Confluence</strong><br>54 Cours Charlemagne · 16h in / 10h out</p>
+    <p><strong>👩 Marie</strong><br>Rue David Girin (Bellecour)</p>
   </div>
 
+  <!-- Progress bar -->
+  <div class="progress-box">
+    <div class="progress-header">
+      <span>✅ Réservations faites</span>
+      <span id="progress-text">0 / 0</span>
+    </div>
+    <div class="progress-bar-outer">
+      <div class="progress-bar-inner" id="progress-bar"></div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
   <div class="tabs">
     <div class="tab active" data-day="dim">🔵 Dim</div>
     <div class="tab" data-day="lun">🟠 Lun</div>
     <div class="tab" data-day="mar">🟢 Mar</div>
     <div class="tab" data-day="mer">🟣 Mer</div>
     <div class="tab" data-day="map">🗺️ Carte</div>
+    <div class="tab" data-day="checklist">✅ À réserver</div>
     <div class="tab" data-day="recap">💰 Budget</div>
+    <div class="tab" data-day="infos">☎️ Infos</div>
   </div>
 
   <!-- ============ DIMANCHE ============ -->
   <div class="day active" id="dim">
     <div class="day-header">
-      <h2>Dimanche 26 avril — Arrivée + Tête d'Or</h2>
-      <div class="meteo">☀️ 8°C → 21°C · Ensoleillé</div>
+      <h2>Dim 26 — Arrivée + Tête d'Or</h2>
+      <div class="meteo" data-date="2026-04-26">☀️ Chargement...</div>
     </div>
+
+    <div id="dim-map" class="day-map"></div>
 
     <div class="timeline">
 
@@ -336,6 +621,9 @@
         <ul>
           <li>Métro B → Bellecour (10 min) puis 2 min à pied chez Marie</li>
         </ul>
+        <div class="slot-actions">
+          <a class="action-btn" href="https://www.google.com/maps/dir/?api=1&destination=Rue+David+Girin+Lyon&travelmode=transit" target="_blank">🧭 Itinéraire Marie</a>
+        </div>
       </div>
 
       <div class="slot">
@@ -356,11 +644,13 @@
           <span class="marie-tag">AVEC MARIE</span>
         </div>
         <ul>
-          <li>Zoo gratuit : girafes, singes, crocodiles, éléphants</li>
-          <li>Pédalos / rosalies sur le lac (~15€)</li>
+          <li>Zoo gratuit · Pédalos lac (~15€) · Aires de jeux · 9h-20h30</li>
           <li>Bus C1/C5 depuis Bellecour (~15 min) ou marche (~25 min)</li>
           <li><span class="free">GRATUIT</span> (hors pédalos)</li>
         </ul>
+        <div class="slot-actions">
+          <a class="action-btn" href="https://www.google.com/maps/dir/?api=1&destination=Parc+de+la+Tete+d+Or+Lyon&travelmode=transit" target="_blank">🧭 Itinéraire</a>
+        </div>
       </div>
 
       <div class="slot">
@@ -369,8 +659,11 @@
           <span class="slot-title">🏠 Check-in Airbnb Confluence</span>
         </div>
         <ul>
-          <li>Tram T1 direction Debourg → arrêt Hôtel Région Montrochet</li>
+          <li>Tram T1 direction Debourg → Hôtel Région Montrochet</li>
         </ul>
+        <div class="slot-actions">
+          <a class="action-btn" href="https://www.google.com/maps/dir/?api=1&destination=54+Cours+Charlemagne+Lyon&travelmode=transit" target="_blank">🧭 Itinéraire</a>
+        </div>
       </div>
 
       <div class="slot">
@@ -380,9 +673,8 @@
           <span class="marie-tag">AVEC MARIE</span>
         </div>
         <ul>
-          <li>Aire de jeux géante gratuite (1 200 m², 9m de haut)</li>
-          <li>Parfait pour défouler les enfants · Ouvert jusqu'à 20h</li>
-          <li><span class="free">GRATUIT</span></li>
+          <li>Aire de jeux géante gratuite (1 200 m², 9m de haut) · 10h-20h</li>
+          <li><span class="free">GRATUIT</span> · Parfait pour défouler les enfants</li>
         </ul>
       </div>
 
@@ -392,33 +684,33 @@
           <span class="slot-title">🍷 Dîner bouchon lyonnais</span>
         </div>
         <ul>
-          <li>Soirée authentique pour démarrer les vacances · Ambiance chaleureuse le soir</li>
-          <li class="tip">💡 Tram T1 ou métro A pour rejoindre le Vieux Lyon / Presqu'île · Réservation conseillée</li>
+          <li>Soirée authentique pour démarrer les vacances</li>
+          <li class="tip">💡 Réservation impérative (Daniel et Denise surtout)</li>
         </ul>
         <div class="restos">
           <div class="restos-title">3 bouchons lyonnais pour le dîner</div>
           <div class="resto">
             <div class="resto-head">
-              <div class="resto-name"><a href="https://www.google.com/maps/search/Daniel+et+Denise+Saint-Jean+Lyon" target="_blank">Daniel et Denise Saint-Jean</a></div>
+              <div class="resto-name"><a href="https://danieletdenise.fr/reserver/" target="_blank">Daniel et Denise Saint-Jean</a></div>
               <div class="resto-price">~35-42€/adulte</div>
             </div>
-            <div class="resto-desc">LE bouchon institutionnel du Vieux Lyon · Chef MOF Joseph Viola · Pâté en croûte champion du monde · Réservation impérative</div>
-            <div class="resto-tags"><span class="tag bouchon">🏛️ Bouchon MOF</span><span class="tag">⭐ Référence</span></div>
+            <div class="resto-desc">LE bouchon institutionnel · Chef MOF Joseph Viola · Pâté en croûte champion du monde · 36 rue Tramassac · 04 78 42 24 62</div>
+            <div class="resto-tags"><span class="tag bouchon">🏛️ MOF</span><span class="tag">⭐ Référence</span><span class="tag">📞 Résa impérative</span></div>
           </div>
           <div class="resto">
             <div class="resto-head">
               <div class="resto-name"><a href="https://www.google.com/maps/search/Le+Poelon+d+Or+Lyon" target="_blank">Le Poêlon d'Or</a></div>
               <div class="resto-price">~30-38€/adulte</div>
             </div>
-            <div class="resto-desc">Bouchon Label Authentique · Quenelles maison réputées · Petit, chaleureux, très bien noté · Presqu'île</div>
-            <div class="resto-tags"><span class="tag bouchon">🏛️ Bouchon Label</span><span class="tag">🥟 Quenelles</span></div>
+            <div class="resto-desc">Bouchon Label Authentique · Quenelles maison réputées · Petit, chaleureux · Presqu'île</div>
+            <div class="resto-tags"><span class="tag bouchon">🏛️ Label</span><span class="tag">🥟 Quenelles</span></div>
           </div>
           <div class="resto">
             <div class="resto-head">
               <div class="resto-name"><a href="https://www.google.com/maps/search/Cafe+des+Federations+Lyon" target="_blank">Café des Fédérations</a></div>
               <div class="resto-price">Menu ~30€ · ~35€/adulte</div>
             </div>
-            <div class="resto-desc">Institution lyonnaise (Presqu'île) · Nappes à carreaux, saucissons suspendus · Formule unique · Ambiance traditionnelle pure</div>
+            <div class="resto-desc">Institution lyonnaise · Nappes à carreaux, saucissons suspendus · Formule unique · Ambiance pure</div>
             <div class="resto-tags"><span class="tag bouchon">🏛️ Institution</span><span class="tag">🎭 Ambiance</span></div>
           </div>
         </div>
@@ -427,16 +719,16 @@
     </div>
 
     <div class="route">
-      📍 <strong>Trajet :</strong> Part-Dieu → Bellecour (Marie) → Tête d'Or → Confluence · Axe nord-sud, pas de zigzag
+      📍 <strong>Trajet :</strong> Part-Dieu → Bellecour (Marie) → Tête d'Or → Confluence → Vieux Lyon soir
     </div>
 
     <details class="alternatives">
       <summary>Alternatives si mauvaise météo ou envie de changer</summary>
       <ul>
-        <li><strong>Aquarium de Lyon</strong> — 10 min à pied de l'Airbnb (à garder pour mardi)</li>
-        <li><strong>Musée des Confluences</strong> — 15 min à pied (plan B pluie, à garder pour lundi)</li>
-        <li><strong>Mini World Lyon</strong> — Vaulx-en-Velin (40 min TCL), 54€ pack famille, parc miniature animé</li>
-        <li><strong>Climb Up Confluence</strong> — Escalade ludique dès 4 ans, parfait pour les enfants</li>
+        <li><strong>Aquarium de Lyon</strong> — 10 min à pied de l'Airbnb</li>
+        <li><strong>Musée des Confluences</strong> — 15 min à pied</li>
+        <li><strong>Mini World Lyon</strong> — Vaulx-en-Velin, 54€ famille</li>
+        <li><strong>Climb Up Confluence</strong> — Escalade ludique dès 4 ans</li>
       </ul>
     </details>
   </div>
@@ -444,9 +736,11 @@
   <!-- ============ LUNDI ============ -->
   <div class="day" id="lun">
     <div class="day-header">
-      <h2>Lundi 27 — Confluences + Vieux Lyon + Fourvière</h2>
-      <div class="meteo">⛅ 7°C → 20°C · Ensoleillé passagèrement nuageux</div>
+      <h2>Lun 27 — Confluences + Vieux Lyon + Fourvière</h2>
+      <div class="meteo" data-date="2026-04-27">⛅ Chargement...</div>
     </div>
+
+    <div id="lun-map" class="day-map"></div>
 
     <div class="timeline">
 
@@ -456,11 +750,14 @@
           <span class="slot-title">🏛️ Musée des Confluences</span>
         </div>
         <ul>
-          <li><strong>15 min à pied de l'Airbnb</strong> — aucun transport</li>
-          <li>« Le Nuage des Petits » : espace dédié 2-6 ans → parfait pour Louis</li>
-          <li>Expos : origines de la vie, animaux, espace, civilisations</li>
-          <li><span class="price">24€</span> (2 × 12€ adultes · gratuit &lt;18 ans)</li>
+          <li><strong>15 min à pied</strong> de l'Airbnb · Horaires 10h30-18h30 (fermé lundi parfois, à vérifier)</li>
+          <li>« Le Nuage des Petits » : espace 2-6 ans pour Louis</li>
+          <li><span class="price">24€</span> (2 × 12€ · gratuit &lt;18 ans)</li>
         </ul>
+        <div class="slot-actions">
+          <a class="action-btn book" href="https://museedesconfluences.fr/fr/preparer-ma-visite/tarifs-et-billetterie" target="_blank">🎫 Réserver</a>
+          <a class="action-btn" href="https://www.google.com/maps/dir/?api=1&destination=Musee+des+Confluences+Lyon&travelmode=walking" target="_blank">🧭 Itinéraire</a>
+        </div>
       </div>
 
       <div class="slot">
@@ -469,30 +766,27 @@
           <span class="slot-title">🍽️ Déjeuner Vieux Lyon</span>
           <span class="marie-tag">AVEC MARIE</span>
         </div>
-        <ul>
-          <li>Tram T1 ou marche (~20 min) → Vieux Lyon</li>
-        </ul>
         <div class="restos">
           <div class="restos-title">3 bouchons lyonnais recommandés</div>
           <div class="resto">
             <div class="resto-head">
-              <div class="resto-name"><a href="https://www.google.com/maps/search/Les+Lyonnais+bouchon+Vieux+Lyon" target="_blank">Les Lyonnais</a></div>
+              <div class="resto-name"><a href="https://bouchon-les-lyonnais.com/fr" target="_blank">Les Lyonnais</a></div>
               <div class="resto-price">Menu enfant 12€ · ~30€/adulte</div>
             </div>
-            <div class="resto-desc">Bouchon classé, affaire familiale · Menu enfant (gratin ravioles + dessert + sirop) · Labellisé Bouchon Lyonnais</div>
+            <div class="resto-desc">Bouchon classé, affaire familiale · Menu enfant complet · Labellisé Bouchon Lyonnais</div>
             <div class="resto-tags"><span class="tag bouchon">🏛️ Bouchon</span><span class="tag">👨‍👩‍👧 Familial</span></div>
           </div>
           <div class="resto">
             <div class="resto-head">
-              <div class="resto-name"><a href="https://www.google.com/maps/search/Notre+Maison+bouchon+Lyon" target="_blank">Notre Maison</a></div>
+              <div class="resto-name"><a href="https://bouchonnotremaison.com/fr" target="_blank">Notre Maison</a></div>
               <div class="resto-price">~28-35€/adulte</div>
             </div>
-            <div class="resto-desc">"Bouchon typiquement atypique" · Service drôle et chaleureux · Plats généreux style grand-mère · Avis excellents</div>
+            <div class="resto-desc">"Bouchon typiquement atypique" · Service drôle et chaleureux · Plats généreux · Avis excellents</div>
             <div class="resto-tags"><span class="tag bouchon">🏛️ Bouchon</span><span class="tag">⭐ Avis top</span></div>
           </div>
           <div class="resto">
             <div class="resto-head">
-              <div class="resto-name"><a href="https://www.google.com/maps/search/Chez+Grand-Mere+Vieux+Lyon" target="_blank">Chez Grand-Mère</a></div>
+              <div class="resto-name"><a href="https://chezgrandmere.fr/" target="_blank">Chez Grand-Mère</a></div>
               <div class="resto-price">~25-32€/adulte</div>
             </div>
             <div class="resto-desc">Cuisine de famille · Produits frais de saison · Recettes traditionnelles · Ambiance conviviale</div>
@@ -508,21 +802,10 @@
           <span class="marie-tag">AVEC MARIE</span>
         </div>
         <ul>
-          <li><strong>Traboules</strong> : passages secrets (Rue Saint-Jean, Place du Change)</li>
+          <li><strong>Traboules</strong> (Rue Saint-Jean, Place du Change)</li>
           <li><strong>Funiculaire → Basilique de Fourvière</strong> (3 min)</li>
-          <li>Vue panoramique sur tout Lyon · Théâtres romains (gratuit)</li>
+          <li>Vue panoramique + théâtres romains (gratuit)</li>
           <li><span class="price">~10€ famille</span> (Louis gratuit &lt;5 ans)</li>
-        </ul>
-      </div>
-
-      <div class="slot">
-        <div class="slot-head">
-          <span class="slot-time">17:30</span>
-          <span class="slot-title">Retour Airbnb, repos, goûter</span>
-        </div>
-        <ul>
-          <li>Funiculaire → métro Vieux Lyon → Bellecour → tram T1 → Confluence</li>
-          <li class="tip">💡 Les enfants ont eu une grosse journée, pause bienvenue</li>
         </ul>
       </div>
 
@@ -532,33 +815,33 @@
           <span class="slot-title">🍝 Dîner à l'Airbnb</span>
         </div>
         <ul>
-          <li>Après une grosse journée, soirée cocooning à l'appart</li>
-          <li class="tip">💡 Faire les courses au Monoprix Confluence en rentrant de Fourvière</li>
+          <li>Cocooning après une grosse journée</li>
+          <li class="tip">💡 Courses au Monoprix Confluence en rentrant</li>
         </ul>
         <div class="restos">
-          <div class="restos-title">3 idées de repas simples à l'Airbnb</div>
+          <div class="restos-title">3 idées de repas simples</div>
           <div class="resto">
             <div class="resto-head">
               <div class="resto-name">🥖 Planche charcuterie lyonnaise + salade</div>
-              <div class="resto-price">~20-25€ (4 pers.)</div>
+              <div class="resto-price">~20-25€</div>
             </div>
-            <div class="resto-desc">Rosette, jambon persillé, cervelas pistaché + salade verte + pain de tradition · Fromages (St-Marcellin, Bleu du Vercors) · Ambiance "pique-nique à l'appart" que les enfants adorent</div>
-            <div class="resto-tags"><span class="tag">⏱️ 10 min prépa</span><span class="tag">👶 Kids OK</span></div>
+            <div class="resto-desc">Rosette, jambon persillé, cervelas pistaché + salade verte + pain · Fromages (St-Marcellin, Bleu du Vercors) · Que les enfants adorent</div>
+            <div class="resto-tags"><span class="tag">⏱️ 10 min</span><span class="tag">👶 Kids OK</span></div>
           </div>
           <div class="resto">
             <div class="resto-head">
-              <div class="resto-name">🍝 Pâtes aux ravioles du Dauphiné + sauce crème</div>
-              <div class="resto-price">~15-20€ (4 pers.)</div>
+              <div class="resto-name">🍝 Pâtes aux ravioles du Dauphiné</div>
+              <div class="resto-price">~15-20€</div>
             </div>
-            <div class="resto-desc">Les ravioles fraîches du Dauphiné (spécialité de la région) cuites 1 min dans l'eau bouillante, sauce crème + noix de muscade · Un régal express que les enfants adorent · Tomates cerises en accompagnement</div>
+            <div class="resto-desc">Ravioles fraîches cuites 1 min · Sauce crème + muscade · Tomates cerises · Les enfants adorent</div>
             <div class="resto-tags"><span class="tag">⏱️ 15 min</span><span class="tag">🌱 Régional</span></div>
           </div>
           <div class="resto">
             <div class="resto-head">
               <div class="resto-name">🍳 Omelette + quenelles poêlées</div>
-              <div class="resto-price">~18-22€ (4 pers.)</div>
+              <div class="resto-price">~18-22€</div>
             </div>
-            <div class="resto-desc">Quenelles natures poêlées au beurre (spécialité lyonnaise, vendues en barquette) + omelette nature ou aux fines herbes pour les enfants · Salade verte · Dessert : yaourts faisselle + confiture</div>
+            <div class="resto-desc">Quenelles natures poêlées au beurre + omelette · Salade verte · Dessert : faisselle + confiture</div>
             <div class="resto-tags"><span class="tag">⏱️ 20 min</span><span class="tag">🥟 Quenelles</span></div>
           </div>
         </div>
@@ -567,16 +850,16 @@
     </div>
 
     <div class="route">
-      📍 <strong>Trajet :</strong> Confluence → Vieux Lyon → Fourvière → retour → Vieux Lyon soir · Secteur sud-ouest compact
+      📍 <strong>Trajet :</strong> Confluence → Vieux Lyon → Fourvière → retour Confluence
     </div>
 
     <details class="alternatives">
       <summary>Alternatives</summary>
       <ul>
-        <li><strong>Musée Cinéma & Miniature</strong> (Vieux Lyon) — 49€ pack famille, à garder pour mardi</li>
-        <li><strong>Spectacle de Guignol</strong> — Théâtre Croix-Rousse, ~25€ famille, 45 min, dès 3 ans</li>
-        <li><strong>Musée des Beaux-Arts de Lyon</strong> — Palais Saint-Pierre, 8€/adulte, gratuit &lt;18 ans</li>
-        <li><strong>Balade en bateau sur la Saône</strong> — Depuis Confluence, mini-croisière ~30 min</li>
+        <li><strong>Musée Cinéma & Miniature</strong> — 49€ pack famille (gardé pour mardi)</li>
+        <li><strong>Spectacle de Guignol</strong> — ~25€ famille, dès 3 ans</li>
+        <li><strong>Musée des Beaux-Arts</strong> — 8€/adulte, gratuit &lt;18 ans</li>
+        <li><strong>Balade en bateau sur la Saône</strong> — mini-croisière ~30 min</li>
       </ul>
     </details>
   </div>
@@ -584,9 +867,11 @@
   <!-- ============ MARDI ============ -->
   <div class="day" id="mar">
     <div class="day-header">
-      <h2>Mardi 28 — Aquarium + Cinéma & Miniature</h2>
-      <div class="meteo">⛅ 8°C → 22°C · Ensoleillé nuages périodiques</div>
+      <h2>Mar 28 — Aquarium + Cinéma & Miniature</h2>
+      <div class="meteo" data-date="2026-04-28">⛅ Chargement...</div>
     </div>
+
+    <div id="mar-map" class="day-map"></div>
 
     <div class="timeline">
 
@@ -596,10 +881,14 @@
           <span class="slot-title">🐠 Aquarium de Lyon</span>
         </div>
         <ul>
-          <li><strong>15 min à pied de l'Airbnb</strong> (La Mulatière)</li>
-          <li>3 000 poissons, 39 écosystèmes · Bassins tactiles · Nourrissage requins</li>
+          <li><strong>15 min à pied</strong> (La Mulatière) · Ouvert 10h30-18h30</li>
+          <li>3 000 poissons · Bassins tactiles · Nourrissage requins</li>
           <li><span class="price">~53€ pack famille</span></li>
         </ul>
+        <div class="slot-actions">
+          <a class="action-btn book" href="https://www.aquariumlyon.fr/tarifs/" target="_blank">🎫 Réserver</a>
+          <a class="action-btn" href="https://www.google.com/maps/dir/?api=1&destination=Aquarium+Lyon+La+Mulatiere&travelmode=walking" target="_blank">🧭 Itinéraire</a>
+        </div>
       </div>
 
       <div class="slot">
@@ -608,17 +897,14 @@
           <span class="slot-title">🍽️ Déjeuner Vieux Lyon</span>
           <span class="marie-tag">AVEC MARIE</span>
         </div>
-        <ul>
-          <li>Marche le long de la Saône (~20 min) depuis Aquarium</li>
-        </ul>
         <div class="restos">
           <div class="restos-title">3 nouveaux bouchons (différents du lundi)</div>
           <div class="resto">
             <div class="resto-head">
-              <div class="resto-name"><a href="https://www.google.com/maps/search/Les+Fines+Gueules+Lyon" target="_blank">Les Fines Gueules</a></div>
+              <div class="resto-name"><a href="https://fines-gueules.fr/" target="_blank">Les Fines Gueules</a></div>
               <div class="resto-price">Menu enfant ~14€ · ~32€/adulte</div>
             </div>
-            <div class="resto-desc">Bouchon intime · Excellente cuisine · Burger du menu enfant très apprécié · Attention portée aux familles</div>
+            <div class="resto-desc">Bouchon intime · Excellente cuisine · Burger menu enfant apprécié · Attention aux familles</div>
             <div class="resto-tags"><span class="tag bouchon">🏛️ Bouchon</span><span class="tag">👶 Famille+</span></div>
           </div>
           <div class="resto">
@@ -626,12 +912,12 @@
               <div class="resto-name"><a href="https://www.google.com/maps/search/Le+Petit+Bouchon+de+la+Place+Lyon" target="_blank">Le Petit Bouchon de la Place</a></div>
               <div class="resto-price">~28€/adulte</div>
             </div>
-            <div class="resto-desc">Authenticité et cuisine familiale · Classiques lyonnais · Grande terrasse · Ambiance conviviale</div>
+            <div class="resto-desc">Authenticité · Classiques lyonnais · Grande terrasse · Ambiance conviviale</div>
             <div class="resto-tags"><span class="tag bouchon">🏛️ Bouchon</span><span class="tag">☀️ Terrasse</span></div>
           </div>
           <div class="resto">
             <div class="resto-head">
-              <div class="resto-name"><a href="https://www.google.com/maps/search/Chez+Grand-Pere+Lyon" target="_blank">Chez Grand-Père</a></div>
+              <div class="resto-name"><a href="https://chezgrandpere.fr/" target="_blank">Chez Grand-Père</a></div>
               <div class="resto-price">Menu midi ~24€ · ~30€/adulte</div>
             </div>
             <div class="resto-desc">Pendant de Chez Grand-Mère · Produits frais de saison · Démarche responsable · Simple et généreux</div>
@@ -647,21 +933,24 @@
           <span class="marie-tag">AVEC MARIE</span>
         </div>
         <ul>
-          <li>60 rue Saint-Jean (à 2 min du resto)</li>
-          <li>Décors et effets spéciaux (Alien, Harry Potter, Jurassic Park, Batman)</li>
-          <li>Miniatures hyper-détaillées — Capucine va halluciner</li>
-          <li><span class="price">49€ pack famille</span> · 10h-19h (vacances scolaires)</li>
+          <li>60 rue Saint-Jean · 10h-19h (vacances scolaires)</li>
+          <li>Décors et effets spéciaux (Alien, Harry Potter…)</li>
+          <li><span class="price">49€ pack famille</span></li>
         </ul>
+        <div class="slot-actions">
+          <a class="action-btn book" href="https://museeminiatureetcinema.fr/billetterie/" target="_blank">🎫 Réserver</a>
+          <a class="action-btn" href="https://www.google.com/maps/dir/?api=1&destination=60+rue+Saint-Jean+Lyon&travelmode=walking" target="_blank">🧭 Itinéraire</a>
+        </div>
       </div>
 
       <div class="slot">
         <div class="slot-head">
           <span class="slot-time">17:00</span>
-          <span class="slot-title">☕ Goûter + balade berges du Rhône</span>
+          <span class="slot-title">☕ Goûter + berges du Rhône</span>
         </div>
         <ul>
-          <li>Aires de jeux entre pont Morand et pont Lafayette</li>
-          <li class="tip">💡 Passer par Monoprix Confluence en rentrant pour le dîner</li>
+          <li>Aires de jeux entre pont Morand et Lafayette</li>
+          <li class="tip">💡 Courses pour le dîner en rentrant</li>
         </ul>
       </div>
 
@@ -671,24 +960,50 @@
           <span class="slot-title">🍝 Dîner à l'Airbnb + valises</span>
         </div>
         <ul>
-          <li>Dernière soirée à Lyon — cocooning</li>
-          <li class="tip">💡 Préparer les valises avant de se coucher</li>
+          <li>Dernière soirée cocooning</li>
         </ul>
+        <div class="restos">
+          <div class="restos-title">3 autres idées de repas</div>
+          <div class="resto">
+            <div class="resto-head">
+              <div class="resto-name">🍕 Tartes flambées ou pizzas surgelées premium</div>
+              <div class="resto-price">~15-20€</div>
+            </div>
+            <div class="resto-desc">Rapide, plébiscité par les enfants · Salade verte pour équilibrer · Fromage blanc avec miel en dessert · Parfait soir de valise</div>
+            <div class="resto-tags"><span class="tag">⏱️ 15 min</span><span class="tag">👶 Kids OK</span></div>
+          </div>
+          <div class="resto">
+            <div class="resto-head">
+              <div class="resto-name">🥗 Salade César + pain à l'ail</div>
+              <div class="resto-price">~18-22€</div>
+            </div>
+            <div class="resto-desc">Salade César (laitue, poulet grillé, parmesan, croûtons) · Version enfant sans anchois · Plus léger pour digestion avant voyage</div>
+            <div class="resto-tags"><span class="tag">⏱️ 15 min</span><span class="tag">🥬 Léger</span></div>
+          </div>
+          <div class="resto">
+            <div class="resto-head">
+              <div class="resto-name">🍲 Gratin de pâtes ou risotto préparé</div>
+              <div class="resto-price">~15-20€</div>
+            </div>
+            <div class="resto-desc">Gratin de coquillettes au jambon et gruyère (les enfants adorent) · Ou risotto aux champignons tout prêt Monoprix Gourmet · Dessert : Saint-Marcellin + fruits</div>
+            <div class="resto-tags"><span class="tag">⏱️ 25 min</span><span class="tag">🧀 Réconfort</span></div>
+          </div>
+        </div>
       </div>
 
     </div>
 
     <div class="route">
-      📍 <strong>Trajet :</strong> Confluence → Aquarium → Vieux Lyon → retour · 100% à pied possible !
+      📍 <strong>Trajet :</strong> Confluence → Aquarium → Vieux Lyon → retour · 100% à pied possible
     </div>
 
     <details class="alternatives">
       <summary>Alternatives</summary>
       <ul>
-        <li><strong>Mini World Lyon</strong> — Vaulx-en-Velin (40 min TCL), 54€ famille, parc miniature animé</li>
-        <li><strong>Musée des Beaux-Arts</strong> — Ateliers enfants, Presqu'île</li>
-        <li><strong>La Tête dans les Nuages Confluence</strong> — Arcade + VR (dès 9-10 ans)</li>
-        <li><strong>Jardin des Curiosités</strong> — Vue panoramique et aire de jeux gratuites</li>
+        <li><strong>Mini World Lyon</strong> — Vaulx-en-Velin, 54€ famille</li>
+        <li><strong>Musée des Beaux-Arts</strong> — Ateliers enfants</li>
+        <li><strong>La Tête dans les Nuages Confluence</strong> — Arcade + VR</li>
+        <li><strong>Jardin des Curiosités</strong> — Vue panoramique gratuite</li>
       </ul>
     </details>
   </div>
@@ -696,9 +1011,11 @@
   <!-- ============ MERCREDI ============ -->
   <div class="day" id="mer">
     <div class="day-header">
-      <h2>Mercredi 29 — Presqu'île + Départ</h2>
-      <div class="meteo">🌤️ 10°C → 18°C · Averses possibles, orages l'aprèm</div>
+      <h2>Mer 29 — Presqu'île + Départ</h2>
+      <div class="meteo" data-date="2026-04-29">🌤️ Chargement...</div>
     </div>
+
+    <div id="mer-map" class="day-map"></div>
 
     <div class="timeline">
 
@@ -708,7 +1025,7 @@
           <span class="slot-title">🏠 Check-out Airbnb</span>
         </div>
         <ul>
-          <li class="tip">💡 Mieux : déposer les valises en consigne à Part-Dieu (métro A direct)</li>
+          <li class="tip">💡 Consigne à Part-Dieu (métro A direct) pour se libérer des valises</li>
         </ul>
       </div>
 
@@ -718,8 +1035,7 @@
           <span class="slot-title">🛍️ Balade Presqu'île</span>
         </div>
         <ul>
-          <li>Place Bellecour (plus grande place piétonne d'Europe)</li>
-          <li>Rue de la République · Rue Mercière (ruelles pavées)</li>
+          <li>Place Bellecour · Rue de la République · Rue Mercière</li>
           <li><span class="free">GRATUIT</span> (sauf shopping 😏)</li>
         </ul>
       </div>
@@ -731,10 +1047,10 @@
           <span class="marie-tag">AVEC MARIE</span>
         </div>
         <div class="restos">
-          <div class="restos-title">3 restos Presqu'île (pratiques avant Part-Dieu)</div>
+          <div class="restos-title">3 restos Presqu'île</div>
           <div class="resto">
             <div class="resto-head">
-              <div class="resto-name"><a href="https://www.google.com/maps/search/Comptoir+Cecil+Lyon+Bellecour" target="_blank">Le Comptoir Cecil</a></div>
+              <div class="resto-name"><a href="https://comptoircecil.com/restaurant-lyon-2-bellecour/" target="_blank">Le Comptoir Cecil</a></div>
               <div class="resto-price">~25-35€/adulte</div>
             </div>
             <div class="resto-desc">Lyon 2 Bellecour · Cuisine bistrot originale · Familial · À 2 pas de chez Marie</div>
@@ -742,18 +1058,18 @@
           </div>
           <div class="resto">
             <div class="resto-head">
-              <div class="resto-name"><a href="https://www.google.com/maps/search/Carmelo+Big+Mamma+Lyon" target="_blank">Carmelo (Big Mamma)</a></div>
+              <div class="resto-name"><a href="https://www.bigmammagroup.com/fr/restaurants-italiens/carmelo" target="_blank">Carmelo (Big Mamma)</a></div>
               <div class="resto-price">~25-30€/adulte</div>
             </div>
-            <div class="resto-desc">Italien groupe Big Mamma · Pâtes fraîches, pizzas feu de bois · Ambiance chaleureuse · Les enfants adorent</div>
+            <div class="resto-desc">Italien groupe Big Mamma · Pâtes fraîches, pizzas feu de bois · Les enfants adorent</div>
             <div class="resto-tags"><span class="tag">🍝 Italien</span><span class="tag">🎉 Ambiance</span></div>
           </div>
           <div class="resto">
             <div class="resto-head">
-              <div class="resto-name"><a href="https://www.google.com/maps/search/MOS+Pub+Merciere+Lyon" target="_blank">MOS PUB Bellecour (Rue Mercière)</a></div>
+              <div class="resto-name"><a href="https://www.google.com/maps/search/MOS+Pub+Merciere+Lyon" target="_blank">MOS PUB Bellecour</a></div>
               <div class="resto-price">~22-30€/adulte</div>
             </div>
-            <div class="resto-desc">Brasserie cuisine maison · Rue Mercière (la plus jolie) · Familial</div>
+            <div class="resto-desc">Brasserie · Rue Mercière (la plus jolie pour déjeuner)</div>
             <div class="resto-tags"><span class="tag">🍺 Brasserie</span><span class="tag">💰 Budget</span></div>
           </div>
         </div>
@@ -781,94 +1097,354 @@
     <details class="alternatives">
       <summary>Alternatives pour la matinée</summary>
       <ul>
-        <li><strong>Halles de Lyon Paul Bocuse</strong> — Temple de la gastronomie · Souvenirs (saucissons, pralines)</li>
-        <li><strong>Parc de la Tête d'Or</strong> — Une dernière heure de plein air</li>
+        <li><strong>Halles de Lyon Paul Bocuse</strong> — Temple gastronomique · Souvenirs</li>
+        <li><strong>Parc de la Tête d'Or</strong> — Dernière heure de plein air</li>
         <li><strong>Westfield Part-Dieu</strong> — Pratique si pluie + gare à côté</li>
       </ul>
     </details>
   </div>
 
-  <!-- ============ CARTE ============ -->
+  <!-- ============ CARTE COMPLÈTE ============ -->
   <div class="day" id="map-view">
-    <h2 style="margin-bottom: 14px;">🗺️ Tous les points sur la carte</h2>
+    <h2 style="margin-bottom: 14px;">🗺️ Tous les points</h2>
     <div id="map"></div>
     <div class="legend-box">
-      <div><span class="dot" style="background:#3b82f6"></span>Dimanche — Arrivée + Tête d'Or</div>
-      <div><span class="dot" style="background:#f59e0b"></span>Lundi — Confluences + Vieux Lyon + Fourvière</div>
-      <div><span class="dot" style="background:#22c55e"></span>Mardi — Aquarium + Cinéma & Miniature</div>
-      <div><span class="dot" style="background:#7c3aed"></span>Mercredi — Presqu'île + Départ</div>
-      <div><span class="dot" style="background:#ec4899"></span>Base Airbnb / Marie / Restos</div>
+      <div><span class="dot" style="background:#3b82f6"></span>Dimanche</div>
+      <div><span class="dot" style="background:#f59e0b"></span>Lundi</div>
+      <div><span class="dot" style="background:#22c55e"></span>Mardi</div>
+      <div><span class="dot" style="background:#7c3aed"></span>Mercredi</div>
+      <div><span class="dot" style="background:#ec4899"></span>Base (Airbnb · Marie · Gare)</div>
     </div>
   </div>
 
-  <!-- ============ RÉCAP BUDGET ============ -->
+  <!-- ============ CHECKLIST ============ -->
+  <div class="day" id="checklist">
+    <h2 style="margin-bottom: 14px;">✅ À réserver avant le départ</h2>
+
+    <div class="checklist-category">
+      <h3>🎫 Billets d'activités</h3>
+      <label class="check-item" data-id="resa-confluences">
+        <input type="checkbox">
+        <span>Musée des Confluences (2×12€ = 24€)</span>
+        <a href="https://museedesconfluences.fr/fr/preparer-ma-visite/tarifs-et-billetterie" target="_blank" class="meta">Réserver ↗</a>
+      </label>
+      <label class="check-item" data-id="resa-aquarium">
+        <input type="checkbox">
+        <span>Aquarium de Lyon (pack famille ~53€)</span>
+        <a href="https://www.aquariumlyon.fr/tarifs/" target="_blank" class="meta">Réserver ↗</a>
+      </label>
+      <label class="check-item" data-id="resa-cinema">
+        <input type="checkbox">
+        <span>Musée Cinéma & Miniature (49€ famille)</span>
+        <a href="https://museeminiatureetcinema.fr/billetterie/" target="_blank" class="meta">Réserver ↗</a>
+      </label>
+    </div>
+
+    <div class="checklist-category">
+      <h3>🍷 Restaurants</h3>
+      <label class="check-item" data-id="resa-dim-soir">
+        <input type="checkbox">
+        <span>Dim soir — Bouchon (Daniel et Denise ?)</span>
+        <a href="https://danieletdenise.fr/reserver/" target="_blank" class="meta">Réserver ↗</a>
+      </label>
+      <label class="check-item" data-id="resa-lun-midi">
+        <input type="checkbox">
+        <span>Lun midi — Bouchon Vieux Lyon (avec Marie)</span>
+        <span class="meta">via TheFork ou tél</span>
+      </label>
+      <label class="check-item" data-id="resa-mar-midi">
+        <input type="checkbox">
+        <span>Mar midi — Bouchon Vieux Lyon (avec Marie)</span>
+        <span class="meta">via TheFork ou tél</span>
+      </label>
+      <label class="check-item" data-id="resa-mer-midi">
+        <input type="checkbox">
+        <span>Mer midi — Resto Presqu'île (avec Marie)</span>
+        <span class="meta">via TheFork ou tél</span>
+      </label>
+    </div>
+
+    <div class="checklist-category">
+      <h3>🚄 Transport & hébergement</h3>
+      <label class="check-item" data-id="resa-tgv-aller">
+        <input type="checkbox">
+        <span>TGV aller (dim 26, 09:00)</span>
+        <span class="meta">SNCF Connect</span>
+      </label>
+      <label class="check-item" data-id="resa-tgv-retour">
+        <input type="checkbox">
+        <span>TGV retour (mer 29, 15:04)</span>
+        <span class="meta">SNCF Connect</span>
+      </label>
+      <label class="check-item" data-id="resa-airbnb">
+        <input type="checkbox">
+        <span>Airbnb Confluence (54 Cours Charlemagne)</span>
+        <span class="meta">Confirmer check-in 16h</span>
+      </label>
+    </div>
+
+    <div class="checklist-category">
+      <h3>🧳 Avant le départ</h3>
+      <label class="check-item" data-id="todo-marie">
+        <input type="checkbox">
+        <span>Confirmer horaire arrivée chez Marie</span>
+      </label>
+      <label class="check-item" data-id="todo-meteo">
+        <input type="checkbox">
+        <span>Check météo à J-2 pour adapter les tenues</span>
+      </label>
+      <label class="check-item" data-id="todo-carte-tcl">
+        <input type="checkbox">
+        <span>Carte TCL prête ou achat en gare</span>
+      </label>
+      <label class="check-item" data-id="todo-valises">
+        <input type="checkbox">
+        <span>Valises faites (vêtements 15-22°C + pluie possible)</span>
+      </label>
+    </div>
+
+    <button class="icon-btn" id="reset-checklist" style="background: #dc2626; margin-top: 12px; padding: 10px 16px; border-radius: 8px; color: white; border: none; cursor: pointer; font-size: 13px; font-weight: 600;">
+      🔄 Réinitialiser
+    </button>
+  </div>
+
+  <!-- ============ BUDGET ============ -->
   <div class="day" id="recap">
     <h2 style="margin-bottom: 14px;">💰 Budget estimé</h2>
     <table class="budget-table">
       <tr><th>Poste</th><th>Détail</th><th>Coût</th></tr>
       <tr><td>🎯 Activités</td><td>Confluences 24€ + Funi 10€ + Aquarium 53€ + Cinéma 49€ + pédalos 15€</td><td>~151 €</td></tr>
       <tr><td>🚇 Transport TCL</td><td>~45€ sur 4 jours (Louis gratuit)</td><td>~45 €</td></tr>
-      <tr><td>🍷 Dim soir</td><td>Dîner bouchon lyonnais (Vieux Lyon / Presqu'île)</td><td>~120-160 €</td></tr>
-      <tr><td>🍽️ Lun midi</td><td>Bouchon lyonnais avec Marie</td><td>~100-130 €</td></tr>
-      <tr><td>🍝 Lun soir</td><td>Courses Monoprix (dîner airbnb)</td><td>~30-40 €</td></tr>
-      <tr><td>🍽️ Mar midi</td><td>Bouchon lyonnais avec Marie</td><td>~100-130 €</td></tr>
-      <tr><td>🍝 Mar soir</td><td>Courses Monoprix (dîner airbnb)</td><td>~30-40 €</td></tr>
+      <tr><td>🍷 Dim soir</td><td>Dîner bouchon lyonnais</td><td>~120-160 €</td></tr>
+      <tr><td>🍽️ Lun midi</td><td>Bouchon avec Marie</td><td>~100-130 €</td></tr>
+      <tr><td>🍝 Lun soir</td><td>Courses Monoprix (airbnb)</td><td>~30-40 €</td></tr>
+      <tr><td>🍽️ Mar midi</td><td>Bouchon avec Marie</td><td>~100-130 €</td></tr>
+      <tr><td>🍝 Mar soir</td><td>Courses (airbnb)</td><td>~30-40 €</td></tr>
       <tr><td>🍽️ Mer midi</td><td>Déjeuner Presqu'île avec Marie</td><td>~80-110 €</td></tr>
-      <tr class="total"><td colspan="2"><strong>TOTAL ESTIMÉ</strong> (hors petits-déjeuners)</td><td><strong>~700 à 870 €</strong></td></tr>
+      <tr class="total"><td colspan="2"><strong>TOTAL</strong> (hors petits-déjeuners)</td><td><strong>~700 à 870 €</strong></td></tr>
     </table>
 
-    <div style="background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; margin-top: 16px;">
-      <h3 style="font-size: 14px; margin-bottom: 10px;">🚇 TCL (transports lyonnais)</h3>
-      <ul style="list-style: none; font-size: 13px; color: var(--muted);">
-        <li>• Ticket unitaire : ~2€, valable 1h</li>
-        <li>• A/R funiculaire : 3,60€</li>
-        <li>• <strong>Louis (4 ans) gratuit</strong> · Capucine (7 ans) tarif enfant (~1,50€)</li>
+    <div class="info-card">
+      <h3>🚇 TCL (transports lyonnais)</h3>
+      <ul>
+        <li>Ticket unitaire : ~2€, valable 1h</li>
+        <li>A/R funiculaire : 3,60€</li>
+        <li><strong>Louis (4 ans) gratuit</strong> · Capucine (7 ans) tarif enfant (~1,50€)</li>
       </ul>
-      <h3 style="font-size: 14px; margin: 14px 0 8px;">📍 3 pôles, zéro trajet > 20 min</h3>
-      <ul style="list-style: none; font-size: 13px; color: var(--muted);">
-        <li>1. <strong>Confluence</strong> (base) → Musée Confluences, Aquarium, Caterpilou</li>
-        <li>2. <strong>Vieux Lyon</strong> (~15 min) → Traboules, Fourvière, Cinéma & Miniature</li>
-        <li>3. <strong>Presqu'île / Part-Dieu</strong> (~10 min) → Bellecour, Marie, gare</li>
+    </div>
+
+    <div class="info-card">
+      <h3>📍 3 pôles, zéro trajet > 20 min</h3>
+      <ul>
+        <li><strong>Confluence</strong> (base) → Musée Confluences, Aquarium, Caterpilou</li>
+        <li><strong>Vieux Lyon</strong> (~15 min) → Traboules, Fourvière, Cinéma & Miniature</li>
+        <li><strong>Presqu'île / Part-Dieu</strong> (~10 min) → Bellecour, Marie, gare</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ INFOS PRATIQUES ============ -->
+  <div class="day" id="infos">
+    <h2 style="margin-bottom: 14px;">☎️ Numéros utiles</h2>
+
+    <div class="info-card urgent">
+      <h3>🚨 Urgences</h3>
+      <ul>
+        <li><a href="tel:112">📞 112</a> · Numéro d'urgence européen (universel)</li>
+        <li><a href="tel:15">📞 15</a> · SAMU (urgences médicales)</li>
+        <li><a href="tel:17">📞 17</a> · Police</li>
+        <li><a href="tel:18">📞 18</a> · Pompiers</li>
+        <li><a href="tel:119">📞 119</a> · Allô enfance en danger</li>
+        <li><a href="tel:3237">📞 3237</a> · Pharmacies de garde</li>
+      </ul>
+    </div>
+
+    <div class="info-card">
+      <h3>🏥 Santé à Lyon</h3>
+      <ul>
+        <li><strong>Hôpital Femme Mère Enfant</strong> (HCL) · 59 bd Pinel, Bron · <a href="tel:+33472129700">04 72 12 97 00</a></li>
+        <li><strong>Maison Médicale de Garde</strong> · <a href="tel:3966">📞 3966</a> (soir et week-end)</li>
+        <li><strong>SOS Médecins Lyon</strong> · <a href="tel:+33472330000">04 72 33 00 00</a> (24/7)</li>
+        <li><strong>Pharmacie de garde</strong> · <a href="tel:3237">3237</a> · Grande Pharmacie Lyonnaise (22 rue de la République) souvent ouverte tard</li>
+      </ul>
+    </div>
+
+    <div class="info-card">
+      <h3>🚖 Taxis / VTC</h3>
+      <ul>
+        <li><strong>Taxi Lyonnais</strong> · <a href="tel:+33478267700">04 78 26 77 00</a></li>
+        <li><strong>Allo Taxi Lyon</strong> · <a href="tel:+33478288623">04 78 28 86 23</a></li>
+        <li><strong>Uber / Bolt / Heetch</strong> · via apps mobiles</li>
+      </ul>
+    </div>
+
+    <div class="info-card">
+      <h3>🚇 Transport TCL</h3>
+      <ul>
+        <li>App TCL (iOS / Android) · Infos temps réel, billets digitaux</li>
+        <li>Info voyageurs : <a href="tel:+33426102612">04 26 10 26 12</a></li>
+        <li>Vélo'v (vélos en libre-service) : app officielle</li>
+      </ul>
+    </div>
+
+    <div class="info-card">
+      <h3>🏠 Contacts séjour</h3>
+      <ul>
+        <li><strong>👩 Marie</strong> · Rue David Girin 69002 · (ajouter son numéro)</li>
+        <li><strong>🏠 Airbnb Confluence</strong> · 54 Cours Charlemagne · (voir app Airbnb)</li>
+        <li><strong>🚄 SNCF Connect</strong> · app pour billets train</li>
       </ul>
     </div>
   </div>
 
 </div>
 
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Share modal -->
+<div class="modal-backdrop" id="share-modal">
+  <div class="modal">
+    <h3>📤 Partager avec...</h3>
+    <a href="#" class="share-btn" id="share-whatsapp">💬 WhatsApp</a>
+    <a href="#" class="share-btn" id="share-sms">📱 SMS</a>
+    <a href="#" class="share-btn" id="share-email">✉️ Email</a>
+    <button class="share-btn" id="share-copy">🔗 Copier le lien</button>
+    <button class="share-btn" id="share-close" style="background: #dc2626; color: white;">Fermer</button>
+  </div>
+</div>
+
 <div class="footer">
-  <p>Programme préparé par <strong>Jarvis 🎩</strong> · Dernière MAJ : 22 avril 2026</p>
-  <p>⚠️ Météo à reconfirmer 48h avant · Prix indicatifs, à vérifier sur les sites officiels</p>
+  <p>Préparé par <strong>Jarvis 🎩</strong> · MAJ : 22 avril 2026</p>
+  <p>⚠️ Prix indicatifs · Météo temps réel via Open-Meteo · Disponibles hors ligne</p>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-// ============ TAB NAVIGATION ============
+// ============ DATA ============
+const SPOTS = [
+  { lat: 45.7406, lng: 4.8188, day: 'base', name: '🏠 Airbnb Confluence', info: '54 Cours Charlemagne' },
+  { lat: 45.7568, lng: 4.8326, day: 'base', name: '👩 Chez Marie', info: 'Rue David Girin (Bellecour)' },
+  { lat: 45.7606, lng: 4.8596, day: 'base', name: '🚄 Part-Dieu', info: 'Gare TGV' },
+  // Dim
+  { lat: 45.7800, lng: 4.8539, day: 'dim', name: '🦁 Parc Tête d\'Or', info: 'Zoo gratuit · Pédalos' },
+  { lat: 45.7406, lng: 4.8175, day: 'dim', name: '🐛 Caterpilou', info: 'Aire de jeux géante' },
+  { lat: 45.7629, lng: 4.8272, day: 'dim', name: '🍷 Daniel et Denise', info: 'Bouchon MOF · 36 rue Tramassac' },
+  // Lun
+  { lat: 45.7326, lng: 4.8178, day: 'lun', name: '🏛️ Musée des Confluences', info: '24€ famille' },
+  { lat: 45.7631, lng: 4.8269, day: 'lun', name: '🏘️ Vieux Lyon', info: 'Traboules' },
+  { lat: 45.7622, lng: 4.8222, day: 'lun', name: '⛪ Fourvière', info: 'Basilique + vue' },
+  // Mar
+  { lat: 45.7310, lng: 4.8108, day: 'mar', name: '🐠 Aquarium Lyon', info: 'La Mulatière' },
+  { lat: 45.7636, lng: 4.8275, day: 'mar', name: '🎬 Cinéma & Miniature', info: '60 rue Saint-Jean' },
+  // Mer
+  { lat: 45.7578, lng: 4.8320, day: 'mer', name: '📍 Place Bellecour', info: 'Presqu\'île' },
+];
+
+const COLORS = { dim: '#3b82f6', lun: '#f59e0b', mar: '#22c55e', mer: '#7c3aed', base: '#ec4899' };
+const TRIP_START = new Date('2026-04-26T09:00:00+02:00');
+const TRIP_END = new Date('2026-04-29T17:00:00+02:00');
+
+// ============ THEME ============
+const themeBtn = document.getElementById('theme-btn');
+function applyTheme(t) {
+  document.documentElement.dataset.theme = t;
+  themeBtn.textContent = t === 'dark' ? '☀️' : '🌙';
+  localStorage.setItem('theme', t);
+  // Refresh map tiles for dark
+  if (window.mainMap) window.mainMap.invalidateSize();
+}
+themeBtn.onclick = () => applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+applyTheme(localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+
+// ============ COUNTDOWN ============
+function updateCountdown() {
+  const el = document.getElementById('countdown');
+  const now = new Date();
+  if (now < TRIP_START) {
+    const diff = TRIP_START - now;
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    el.innerHTML = `<div class="countdown-label">Départ dans</div><div class="countdown-value">${days} jours ${hours}h</div>`;
+  } else if (now < TRIP_END) {
+    const dayIdx = Math.floor((now - TRIP_START) / 86400000);
+    const labels = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi'];
+    el.innerHTML = `<div class="countdown-label">Vous êtes à Lyon 🌸</div><div class="countdown-value">${labels[dayIdx] || 'Bon retour !'}</div>`;
+  } else {
+    el.innerHTML = `<div class="countdown-label">Souvenirs</div><div class="countdown-value">✨ Déjà terminé</div>`;
+  }
+}
+updateCountdown();
+setInterval(updateCountdown, 60000);
+
+// ============ TABS ============
 const tabs = document.querySelectorAll('.tab');
-const days = ['dim', 'lun', 'mar', 'mer', 'map-view', 'recap'];
-tabs.forEach(tab => {
-  tab.addEventListener('click', () => {
-    const target = tab.dataset.day === 'map' ? 'map-view' : tab.dataset.day;
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.day').forEach(d => d.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById(target).classList.add('active');
-    if (target === 'map-view' && window.mapInstance) {
-      setTimeout(() => window.mapInstance.invalidateSize(), 100);
-    }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
-});
+function selectTab(dayId) {
+  const targetId = dayId === 'map' ? 'map-view' : dayId;
+  tabs.forEach(t => t.classList.toggle('active', t.dataset.day === dayId));
+  document.querySelectorAll('.day').forEach(d => d.classList.toggle('active', d.id === targetId));
+  if (targetId === 'map-view' && window.mainMap) setTimeout(() => window.mainMap.invalidateSize(), 50);
+  ['dim', 'lun', 'mar', 'mer'].forEach(d => { if (window[d + 'Map']) setTimeout(() => window[d + 'Map'].invalidateSize(), 50); });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+tabs.forEach(t => t.addEventListener('click', () => selectTab(t.dataset.day)));
 
-// ============ MAP ============
-const map = L.map('map').setView([45.751, 4.832], 13);
-window.mapInstance = map;
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap'
-}).addTo(map);
+// Mark "today" if we're during the trip
+const now = new Date();
+if (now >= TRIP_START && now < TRIP_END) {
+  const dayIdx = Math.floor((now - TRIP_START) / 86400000);
+  const dayKey = ['dim', 'lun', 'mar', 'mer'][dayIdx];
+  if (dayKey) {
+    document.querySelector(`.tab[data-day="${dayKey}"]`).classList.add('today');
+    selectTab(dayKey);
+  }
+}
 
-const colors = { dim: '#3b82f6', lun: '#f59e0b', mar: '#22c55e', mer: '#7c3aed', base: '#ec4899' };
+// ============ SWIPE NAVIGATION ============
+const DAYS_ORDER = ['dim', 'lun', 'mar', 'mer', 'map', 'checklist', 'recap', 'infos'];
+let touchStartX = 0;
+document.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
+document.addEventListener('touchend', e => {
+  const diff = e.changedTouches[0].screenX - touchStartX;
+  if (Math.abs(diff) < 80) return;
+  const currentTab = document.querySelector('.tab.active');
+  if (!currentTab) return;
+  const idx = DAYS_ORDER.indexOf(currentTab.dataset.day);
+  const newIdx = diff > 0 ? idx - 1 : idx + 1;
+  if (newIdx >= 0 && newIdx < DAYS_ORDER.length) selectTab(DAYS_ORDER[newIdx]);
+}, { passive: true });
 
-function dot(color) {
+// ============ TOAST ============
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ============ SHARE ============
+const shareBtn = document.getElementById('share-btn');
+const shareModal = document.getElementById('share-modal');
+const shareText = 'Notre programme vacances à Lyon 🌸';
+const url = window.location.href.split('?')[0].split('#')[0];
+
+shareBtn.onclick = async () => {
+  if (navigator.share) {
+    try { await navigator.share({ title: shareText, url }); return; } catch {}
+  }
+  shareModal.classList.add('show');
+};
+document.getElementById('share-close').onclick = () => shareModal.classList.remove('show');
+shareModal.onclick = e => { if (e.target === shareModal) shareModal.classList.remove('show'); };
+document.getElementById('share-whatsapp').href = `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + url)}`;
+document.getElementById('share-sms').href = `sms:?body=${encodeURIComponent(shareText + ' ' + url)}`;
+document.getElementById('share-email').href = `mailto:?subject=${encodeURIComponent(shareText)}&body=${encodeURIComponent(url)}`;
+document.getElementById('share-copy').onclick = async () => {
+  try { await navigator.clipboard.writeText(url); toast('Lien copié !'); shareModal.classList.remove('show'); } catch { toast('Erreur copie'); }
+};
+
+// ============ MAPS ============
+function makeDot(color) {
   return L.divIcon({
     className: '',
     html: `<div style="background:${color};width:22px;height:22px;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);"></div>`,
@@ -876,31 +1452,109 @@ function dot(color) {
   });
 }
 
-const spots = [
-  // Base
-  { lat: 45.7406, lng: 4.8188, day: 'base', name: '🏠 Airbnb Confluence', info: '54 Cours Charlemagne, 69002' },
-  { lat: 45.7568, lng: 4.8326, day: 'base', name: '👩 Chez Marie', info: 'Rue David Girin, 69002 (Bellecour)' },
-  // Dimanche
-  { lat: 45.7800, lng: 4.8539, day: 'dim', name: '🦁 Parc de la Tête d\'Or', info: 'Zoo gratuit · Pédalos · Aires de jeux' },
-  { lat: 45.7406, lng: 4.8175, day: 'dim', name: '🐛 Caterpilou', info: 'Aire de jeux géante gratuite · Ouvert jusqu\'à 20h' },
-  // Lundi
-  { lat: 45.7326, lng: 4.8178, day: 'lun', name: '🏛️ Musée des Confluences', info: '15 min à pied de l\'Airbnb · 24€' },
-  { lat: 45.7631, lng: 4.8269, day: 'lun', name: '🏘️ Vieux Lyon (Traboules)', info: 'Place du Change · Rue Saint-Jean' },
-  { lat: 45.7622, lng: 4.8222, day: 'lun', name: '⛪ Basilique de Fourvière', info: 'Vue panoramique · Funiculaire 3,60€' },
-  { lat: 45.7629, lng: 4.8272, day: 'dim', name: '🍷 Bouchon Daniel et Denise', info: 'Saint-Jean · MOF Joseph Viola · Dîner dim soir' },
-  // Mardi
-  { lat: 45.7310, lng: 4.8108, day: 'mar', name: '🐠 Aquarium de Lyon', info: 'La Mulatière · 15 min à pied · 53€' },
-  { lat: 45.7636, lng: 4.8275, day: 'mar', name: '🎬 Musée Cinéma & Miniature', info: '60 rue Saint-Jean · 49€ pack famille' },
-  // Mercredi
-  { lat: 45.7578, lng: 4.8320, day: 'mer', name: '📍 Place Bellecour', info: 'Plus grande place piétonne d\'Europe' },
-  { lat: 45.7606, lng: 4.8596, day: 'mer', name: '🚄 Gare Part-Dieu', info: 'Départ TGV 15:04' }
-];
-
-spots.forEach(s => {
-  L.marker([s.lat, s.lng], { icon: dot(colors[s.day]) })
-    .addTo(map)
+// Main map
+const mainMap = L.map('map').setView([45.751, 4.832], 13);
+window.mainMap = mainMap;
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OSM' }).addTo(mainMap);
+SPOTS.forEach(s => {
+  L.marker([s.lat, s.lng], { icon: makeDot(COLORS[s.day]) })
+    .addTo(mainMap)
     .bindPopup(`<strong>${s.name}</strong><br><span style="font-size:12px;color:#555">${s.info}</span>`);
 });
+
+// Mini maps per day
+['dim', 'lun', 'mar', 'mer'].forEach(day => {
+  const container = document.getElementById(day + '-map');
+  if (!container) return;
+  const dayMap = L.map(container, { zoomControl: false, attributionControl: false });
+  window[day + 'Map'] = dayMap;
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(dayMap);
+  const daySpots = SPOTS.filter(s => s.day === day || s.day === 'base');
+  const group = L.featureGroup();
+  daySpots.forEach(s => {
+    L.marker([s.lat, s.lng], { icon: makeDot(COLORS[s.day]) })
+      .bindPopup(`<strong>${s.name}</strong><br><span style="font-size:11px;color:#555">${s.info}</span>`)
+      .addTo(group);
+  });
+  group.addTo(dayMap);
+  dayMap.fitBounds(group.getBounds().pad(0.15));
+});
+
+// ============ WEATHER (Open-Meteo) ============
+async function loadWeather() {
+  try {
+    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=45.75&longitude=4.85&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Europe%2FParis&start_date=2026-04-26&end_date=2026-04-29');
+    const data = await res.json();
+    const WEATHER_ICONS = {
+      0: '☀️', 1: '🌤️', 2: '⛅', 3: '☁️',
+      45: '🌫️', 48: '🌫️',
+      51: '🌦️', 53: '🌦️', 55: '🌦️',
+      61: '🌧️', 63: '🌧️', 65: '🌧️',
+      71: '🌨️', 73: '🌨️', 75: '🌨️',
+      80: '🌦️', 81: '🌧️', 82: '⛈️',
+      95: '⛈️', 96: '⛈️', 99: '⛈️'
+    };
+    data.daily.time.forEach((date, i) => {
+      const icon = WEATHER_ICONS[data.daily.weathercode[i]] || '🌤️';
+      const min = Math.round(data.daily.temperature_2m_min[i]);
+      const max = Math.round(data.daily.temperature_2m_max[i]);
+      const rain = data.daily.precipitation_probability_max[i];
+      document.querySelectorAll(`.meteo[data-date="${date}"]`).forEach(el => {
+        el.innerHTML = `${icon} ${min}°→${max}° · ☔ ${rain}%`;
+      });
+    });
+  } catch (e) {
+    // Fallback: keep static forecasts
+    const fallback = {
+      '2026-04-26': '☀️ 8°→21° · Ensoleillé',
+      '2026-04-27': '⛅ 7°→20° · Nuages passagers',
+      '2026-04-28': '⛅ 8°→22° · Ensoleillé',
+      '2026-04-29': '🌤️ 10°→18° · Averses possibles'
+    };
+    Object.entries(fallback).forEach(([date, text]) => {
+      document.querySelectorAll(`.meteo[data-date="${date}"]`).forEach(el => el.innerHTML = text);
+    });
+  }
+}
+loadWeather();
+
+// ============ CHECKLIST PERSISTENCE ============
+const checks = document.querySelectorAll('.check-item');
+function updateProgress() {
+  const total = checks.length;
+  const done = [...checks].filter(c => c.querySelector('input').checked).length;
+  document.getElementById('progress-text').textContent = `${done} / ${total}`;
+  document.getElementById('progress-bar').style.width = (total ? (done / total * 100) : 0) + '%';
+}
+checks.forEach(item => {
+  const id = item.dataset.id;
+  const input = item.querySelector('input');
+  input.checked = localStorage.getItem('check-' + id) === '1';
+  item.classList.toggle('done', input.checked);
+  input.addEventListener('change', () => {
+    localStorage.setItem('check-' + id, input.checked ? '1' : '0');
+    item.classList.toggle('done', input.checked);
+    updateProgress();
+    if (input.checked) toast('✓ Coché');
+  });
+});
+updateProgress();
+
+document.getElementById('reset-checklist').onclick = () => {
+  if (!confirm('Décocher tout ?')) return;
+  checks.forEach(item => {
+    item.querySelector('input').checked = false;
+    item.classList.remove('done');
+    localStorage.removeItem('check-' + item.dataset.id);
+  });
+  updateProgress();
+  toast('🔄 Réinitialisé');
+};
+
+// ============ SERVICE WORKER ============
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
 </script>
 
 </body>
