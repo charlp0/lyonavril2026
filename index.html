@@ -371,6 +371,12 @@
   [data-theme="dark"] .resto-price { color: #fca5a5; }
   .resto-desc { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
   .resto-tags { margin-top: 4px; }
+  .resto-rating { display: inline-flex; align-items: center; gap: 3px; background: #fef3c7; color: #92400e; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 99px; margin-left: 6px; white-space: nowrap; }
+  [data-theme="dark"] .resto-rating { background: #78350f; color: #fde68a; }
+  .resto-rating .count { font-weight: 500; opacity: 0.8; font-size: 10px; }
+  .resto.top-pick { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 4px solid #f59e0b; border-radius: 6px; padding: 8px 10px !important; margin: 6px 0; position: relative; }
+  [data-theme="dark"] .resto.top-pick { background: linear-gradient(135deg, #78350f 0%, #92400e 100%); border-left-color: #fbbf24; }
+  .top-pick-badge { display: inline-block; background: #f59e0b; color: white; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 99px; margin-bottom: 4px; letter-spacing: 0.3px; }
   .tag {
     display: inline-block;
     font-size: 10px;
@@ -729,12 +735,13 @@
         </ul>
         <div class="restos">
           <div class="restos-title">3 idées de repas simples</div>
-          <div class="resto">
+          <div class="resto top-pick">
+            <div class="top-pick-badge">🏆 Top reco Jarvis</div>
             <div class="resto-head">
               <div class="resto-name">🥖 Planche charcuterie lyonnaise + salade</div>
               <div class="resto-price">~20-25€</div>
             </div>
-            <div class="resto-desc">Rosette, jambon persillé, cervelas pistaché + salade verte + pain · Fromages (St-Marcellin, Bleu du Vercors) · Que les enfants adorent</div>
+            <div class="resto-desc">Rosette, jambon persillé, cervelas pistaché + salade verte + pain · Fromages (St-Marcellin, Bleu du Vercors) · Que les enfants adorent · <em>Ultra rapide après le voyage</em></div>
             <div class="resto-tags"><span class="tag">⏱️ 10 min</span><span class="tag">👶 Kids OK</span></div>
           </div>
           <div class="resto">
@@ -811,7 +818,8 @@
         </div>
         <div class="restos">
           <div class="restos-title">3 bouchons lyonnais recommandés</div>
-          <div class="resto">
+          <div class="resto top-pick">
+            <div class="top-pick-badge">🏆 Top reco Jarvis</div>
             <div class="resto-head">
               <div class="resto-name"><a href="https://bouchon-les-lyonnais.com/fr" target="_blank">Les Lyonnais</a> <span class="resto-rating">⭐ 4.4 <span class="count">4500+</span></span></div>
               <div class="resto-price">Menu enfant 12€ · ~30€/adulte</div>
@@ -866,7 +874,8 @@
         </ul>
         <div class="restos">
           <div class="restos-title">3 bouchons lyonnais pour le dîner</div>
-          <div class="resto">
+          <div class="resto top-pick">
+            <div class="top-pick-badge">🏆 Top reco Jarvis</div>
             <div class="resto-head">
               <div class="resto-name"><a href="https://danieletdenise.fr/reserver/" target="_blank">Daniel et Denise Saint-Jean</a> <span class="resto-rating">⭐ 4.4</span></div>
               <div class="resto-price">~35-42€/adulte</div>
@@ -947,7 +956,8 @@
         </div>
         <div class="restos">
           <div class="restos-title">3 nouveaux bouchons (différents du lundi)</div>
-          <div class="resto">
+          <div class="resto top-pick">
+            <div class="top-pick-badge">🏆 Top reco Jarvis</div>
             <div class="resto-head">
               <div class="resto-name"><a href="https://fines-gueules.fr/" target="_blank">Les Fines Gueules</a> <span class="resto-rating">⭐ 4.5 <span class="count">2460</span></span></div>
               <div class="resto-price">Menu enfant ~14€ · ~32€/adulte</div>
@@ -1029,7 +1039,8 @@
             <div class="resto-desc">Salade César (laitue, poulet grillé, parmesan, croûtons) · Version enfant sans anchois · Plus léger pour digestion avant voyage</div>
             <div class="resto-tags"><span class="tag">⏱️ 15 min</span><span class="tag">🥬 Léger</span></div>
           </div>
-          <div class="resto">
+          <div class="resto top-pick">
+            <div class="top-pick-badge">🏆 Top reco Jarvis</div>
             <div class="resto-head">
               <div class="resto-name">🍲 Gratin de pâtes ou risotto préparé</div>
               <div class="resto-price">~15-20€</div>
@@ -1109,7 +1120,8 @@
             <div class="resto-desc">Lyon 2 Bellecour · Cuisine bistrot originale · Familial · À 2 pas de chez Marie</div>
             <div class="resto-tags"><span class="tag">🍽️ Bistrot</span><span class="tag">👨‍👩‍👧 Familial</span></div>
           </div>
-          <div class="resto">
+          <div class="resto top-pick">
+            <div class="top-pick-badge">🏆 Top reco Jarvis</div>
             <div class="resto-head">
               <div class="resto-name"><a href="https://www.bigmammagroup.com/fr/restaurants-italiens/carmelo" target="_blank">Carmelo (Big Mamma)</a> <span class="resto-rating">⭐ 4.8 <span class="count">30k</span></span></div>
               <div class="resto-price">~25-30€/adulte</div>
